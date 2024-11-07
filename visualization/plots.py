@@ -1,6 +1,6 @@
 import matplotlib as mpl
 import matplotlib.pyplot as plt
-from optimization.gradient import *
+from optimization.derivatives import *
 
 mpl.use('TkAgg')
 
