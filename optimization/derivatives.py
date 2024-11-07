@@ -50,7 +50,8 @@ def calculate_grad(f: Callable[[float], float], x: [float], h: float = 1e-3) -> 
 
 def calculate_hess(f: Callable[[float], float], x: [float], h: float = 1e-3) -> np.ndarray:
     """
-    Evaluates the hessian of the function 'f' numerically using the central difference method.
+    Evaluates the hessian of the function 'f' at `x` numerically using the central difference method.
+    Note that the function simply computes the gradients of the gradient, which is not the most efficient way to compute the hessian.
     :param f: function to compute the gradient of
     :param x: input vector
     :param h: step size
