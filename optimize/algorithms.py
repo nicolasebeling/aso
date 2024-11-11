@@ -48,6 +48,6 @@ def minimize_constrained(f: Callable[[float], float]):
     pass
 
 
-# For test:
+# For testing:
 if __name__ == '__main__':
     pass

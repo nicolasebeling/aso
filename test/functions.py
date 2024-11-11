@@ -1,5 +1,5 @@
 """
-Contains functions for test optimize algorithms.
+Contains functions for testing optimization algorithms.
 Source: https://en.wikipedia.org/wiki/Test_functions_for_optimization
 """
 
