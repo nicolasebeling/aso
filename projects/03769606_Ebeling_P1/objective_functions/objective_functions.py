@@ -17,7 +17,7 @@ class ObjectiveFunction(ABC):
 
 
 class Rosenbrock(ObjectiveFunction):
-    """The two-dimensional Rosenbrock function is also known as the banana function. It was introduced by Rosenbrock, who used it as a benchmark problem for optimization algorithms.
+    """The two-dimensional Rosenbrock function is also known as the banana function. It was introduced by Rosenbrock, who used it as a benchmark problem for optimize algorithms.
     Args:
         x (np.ndarray): Input vector for the function
     """

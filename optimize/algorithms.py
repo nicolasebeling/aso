@@ -4,7 +4,7 @@ import numpy as np
 
 def line_search(f: Callable[[float], float], f0: float = None, df0: float = None, h: float = 1e-3, algorithm: str = 'armijo', a0: float = 0.1) -> float:
     """
-    Implements the line search algorithms according to Larry Armijo, Jerome Goldstein and Philip Wolfe.
+    Implements a line search algorithm according to Larry Armijo and Philip Wolfe.
     :param f: function to be minimized constrained to search direction
     :param f0: initial value of the function
     :param df0: initial value of the derivative
@@ -27,15 +27,27 @@ def line_search(f: Callable[[float], float], f0: float = None, df0: float = None
 
 def convert_to_line(f: Callable[[float], float], position: np.ndarray, direction: np.ndarray) -> Callable[[float], float]:
     """
-    Converts a function of many arguments to a function of one argument (a line) by constraining it to the specified direction.
-    :param f:
-    :param position:
-    :param direction:
-    :return:
+    Converts a function of many arguments to a function of one argument (i.e. a line) by constraining it to the specified direction.
     """
     return lambda step_size: f(position + step_size * direction)
 
 
-# For testing:
+def newton(f: Callable[[float], float]):
+    pass
+
+
+def bfgs(f: Callable[[float], float]):
+    pass
+
+
+def minimize_unconstrained(f: Callable[[float], float]):
+    pass
+
+
+def minimize_constrained(f: Callable[[float], float]):
+    pass
+
+
+# For test:
 if __name__ == '__main__':
     pass

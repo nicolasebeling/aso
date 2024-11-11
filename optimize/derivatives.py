@@ -66,6 +66,6 @@ def calculate_hess(f: Callable[[float], float], x: [float], h: float = 1e-3) -> 
     return hess
 
 
-# For testing:
+# For test:
 if __name__ == '__main__':
     pass

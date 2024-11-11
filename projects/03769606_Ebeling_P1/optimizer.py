@@ -4,14 +4,14 @@ import numpy as np
 
 
 class Optimizer():
-    """This class initializes an Optimizer object (i.e. creates an optimization problem). The optimisation problem is solved with the optimize method.
+    """This class initializes an Optimizer object (i.e. creates an optimize problem). The optimisation problem is solved with the optimize method.
     Args:
         start_point (np.ndarray): Input vector for the chosen objective function
-        objective_function (str): Choose an objective function to test your optimization algorithm ('ROSENBROCK')
+        objective_function (str): Choose an objective function to test your optimize algorithm ('ROSENBROCK')
         search_direction_algorithm (str): Choose an algorithm to determine the search direction ('STEEPEST DESCENT')
         line_search_algorithm (str): Choose an algorithm to determine alpha (not implemented yet, alpha defaults to 0.3e-4)
         tolerance (float): Define the tolerance for your result. This will be compared to ||∇f(x)||_{inf}, which is the maximum absolute value of the gradient at the current point
-        max_iterations (int): Set a value for the maximum amount of iterations. When this is reached by the counter, the optimization will stop
+        max_iterations (int): Set a value for the maximum amount of iterations. When this is reached by the counter, the optimize will stop
     """
 
     def __init__(self,
@@ -42,7 +42,7 @@ class Optimizer():
             print("Search direction algorithm: Steepest Descent...")
             self.search_direction_normalized = SteepestDescent.compute_search_direction(self.gradient)
 
-    # Implement the optimization algorithm here. Do not change anything above this line.
+    # Implement the optimize algorithm here. Do not change anything above this line.
     def optimize(self):
         # While the optimality condition is not fulfilled and the number of iterations is lower than the specified maximum,
         while np.max(np.abs(self.gradient)) > self.tolerance and self.iteration < self.max_iterations:
