@@ -13,11 +13,11 @@ def create_grad_within_bounds(f: Callable[[np.ndarray], float], bounds: list[tup
     :return: gradient of `f` as a function of `x`
     """
 
-    def calculate_grad_within_bounds(x):
+    def grad_within_bounds(x):
         if len(bounds) != len(x):
             raise ValueError('The number of bounds must equal the number of arguments.')
 
-        grad = np.zeros(len(x))
+        result = np.zeros(len(x))
         for i in range(len(x)):
             if x[i] + h <= bounds[i][1]:
                 dx: float = h
@@ -26,13 +26,13 @@ def create_grad_within_bounds(f: Callable[[np.ndarray], float], bounds: list[tup
             else:
                 raise ValueError(f'Gradient cannot be computed because x{i} +- {h} is out of bounds [{round(bounds[i][0], 3)}, {round(bounds[i][1], 3)}]. '
                                  f'Consider loosening the bounds or decreasing the step size.')
-            grad[i] = (f(x + dx) - f(x)) / dx
-        return grad
+            result[i] = (f(x + dx) - f(x)) / dx
+        return result
 
-    return calculate_grad_within_bounds
+    return grad_within_bounds
 
 
-def calculate_grad(f: Callable[[float], float], x: [float], h: float = 1e-3) -> np.ndarray:
+def grad(f: Callable[[float], float], x: [float], h: float = 1e-6) -> np.ndarray:
     """
     Evaluates the gradient of the function 'f' numerically using the central difference method.
     :param f: function to compute the gradient of
@@ -40,15 +40,15 @@ def calculate_grad(f: Callable[[float], float], x: [float], h: float = 1e-3) -> 
     :param h: step size
     :return: gradient of `f` at `x`
     """
-    grad = np.zeros(len(x))
+    result = np.zeros(len(x))
     for i in range(len(x)):
         h_vector = np.zeros_like(x, dtype=float)
         h_vector[i] = h
-        grad[i] = (f(x + h_vector) - f(x - h_vector)) / (2 * h)
-    return grad
+        result[i] = (f(x + h_vector) - f(x - h_vector)) / (2 * h)
+    return result
 
 
-def calculate_hess(f: Callable[[float], float], x: [float], h: float = 1e-3) -> np.ndarray:
+def hess(f: Callable[[float], float], x: [float], h: float = 1e-6) -> np.ndarray:
     """
     Evaluates the hessian of the function 'f' at `x` numerically using the central difference method.
     Note that the function simply computes the gradients of the gradient, which is not the most efficient way to compute the hessian.
@@ -57,13 +57,13 @@ def calculate_hess(f: Callable[[float], float], x: [float], h: float = 1e-3) -> 
     :param h: step size
     :return: hessian of `f` at `x`
     """
-    hess = np.zeros(shape=(len(x), len(x)))
+    result = np.zeros(shape=(len(x), len(x)))
     for i in range(len(x)):
         def calculate_grad_i(y: [float]) -> float:
-            return float(calculate_grad(f, y, h)[i])
+            return float(grad(f, y, h)[i])
 
-        hess[i] = calculate_grad(calculate_grad_i, x, h)
-    return hess
+        result[i] = grad(calculate_grad_i, x, h)
+    return result
 
 
 # For testing:
