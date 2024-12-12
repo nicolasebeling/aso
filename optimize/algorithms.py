@@ -1,7 +1,7 @@
 from typing import Callable
 import numpy as np
 
-from derivatives import grad, hess
+from derivatives import jac, hess
 
 
 def line_search(f: Callable[[float], float], strong: bool = True, f0: float = None, df0: float = None, h: float = 1e-6, a0: float = 0.9, m1: float = 1e-4, m2: float = 9e-1, n_max: int = 100) -> float:
@@ -67,26 +67,68 @@ def convert_to_line(f: Callable[[float], float], position: np.ndarray, direction
     return lambda step_size: f(position + step_size * direction)
 
 
-def newton(f: Callable[[float], float]):
-    pass
+def l_bfgs_b(f: Callable, g: [Callable], h: [Callable], x0: np.ndarray, max_iterations: float = 1e3, tolerance: float = 1e-3) -> np.ndarray:
+    # TODO: Implement side constraints (bounds) via variable projection and subsequent gradient masking.
 
+    # Initialize:
+    iteration = 0
+    x = x0
+    n = len(x)
+    m = len(g) + len(h)
+    V: np.ndarray = np.eye(n)
 
-def bfgs(f: Callable[[float], float]):
-    pass
+    while iteration < max_iterations:
+        iteration += 1
 
+        # Calculate A = Jacobian of the constraints:
+        A: np.ndarray = jac(f, x)
 
-def minimize_unconstrained(f: Callable[[float], float]):
-    pass
+        # Set up and solve the SQP equation system:
+        # noinspection PyTypeChecker
+        dim: int = n + m
+        LHS = np.zeros(shape=(dim, dim))
+        LHS[:n, :n] = V
+        LHS[:n, n:] = np.transpose(A)
+        LHS[n:, :n] = A
+        # noinspection PyTypeChecker
+        RHS = np.zeros(dim)
+        RHS[:n] = -1 * jac(f, x)
+        RHS[n:] = -1 * [gi(x) for gi in g + h]
+        result = np.linalg.solve(LHS, RHS)
+        p: np.ndarray = result[:n]
+        lagrange_multipliers = result[n:]
 
+        # Perform a line search and calculate the updated design variables:
+        x_new: np.ndarray = x + line_search(convert_to_line(f, x, p)) * p
 
-def minimize_constrained(f: Callable[[float], float]):
-    pass
+        # Calculate the gradient of the Lagrange function at x_new:
+        dLdx_new = jac(f, x_new)
+        for i, gi in enumerate(g):
+            dLdx_new += lagrange_multipliers[i] * jac(gi, x_new)
+        for i, hi in enumerate(h):
+            dLdx_new += lagrange_multipliers[len(g) + i] * jac(hi, x_new)
+
+        # Check for convergence according to the KKT conditions:
+        stationary_point_in_primal_space = (dLdx_new < tolerance * np.ones(n)).all()
+        stationary_point_in_dual_space = ([gi(x) for gi in g + h] < tolerance * np.ones(m)).all()
+        if stationary_point_in_primal_space or stationary_point_in_dual_space:
+            return x_new
+
+        # Calculate the gradient of the Lagrange function at x_new:
+        dLdx = jac(f, x_new)
+        for i, gi in enumerate(g):
+            dLdx += lagrange_multipliers[i] * jac(gi, x_new)
+        for i, hi in enumerate(h):
+            dLdx += lagrange_multipliers[len(g) + i] * jac(hi, x_new)
+
+        # If not converged, update the Hessian:
+        y = dLdx_new - dLdx
+        V = (np.eye(n) - np.outer(p, y) / np.inner(y, p)) @ V @ (np.eye(n) - np.outer(y, p) / np.inner(y, p)) + np.outer(p, p) / np.inner(y, p)
+
+        # Update the design variables:
+        x = x_new
 
 
 # For testing:
 if __name__ == '__main__':
-    def g(x):
-        return (x - 5) ** 2
-
-
-    print(line_search(g))
+    pass

@@ -1,6 +1,7 @@
 from typing import Callable
 
 import numpy as np
+import itertools
 
 
 def create_grad_within_bounds(f: Callable[[np.ndarray], float], bounds: list[tuple], h: float = 1e-8) -> Callable[[np.ndarray], np.ndarray]:
@@ -32,23 +33,30 @@ def create_grad_within_bounds(f: Callable[[np.ndarray], float], bounds: list[tup
     return grad_within_bounds
 
 
-def grad(f: Callable[[float], float], x: [float], h: float = 1e-6) -> np.ndarray:
+def jac(f: Callable | list[Callable], x: np.ndarray, h: float = 1e-6) -> np.ndarray:
     """
-    Evaluates the gradient of the function 'f' numerically using the central difference method.
-    :param f: function to compute the gradient of
+    Numerically computes the Jacobian of the function 'f' using the central difference method.
+    :param f: function to compute the Jacobian of
     :param x: input vector
     :param h: step size
     :return: gradient of `f` at `x`
     """
-    result = np.zeros(len(x))
-    for i in range(len(x)):
-        h_vector = np.zeros_like(x, dtype=float)
-        h_vector[i] = h
-        result[i] = (f(x + h_vector) - f(x - h_vector)) / (2 * h)
+    if isinstance(f, list):
+        result = np.zeros(shape=(len(f), len(x)))
+        for i, j in itertools.product(range(len(f)), range(len(x))):
+            h_vector = np.zeros_like(x, dtype=float)
+            h_vector[j] = h
+            result[i, j] = (f[i](x + h_vector) - f[i](x - h_vector)) / (2 * h)
+    else:
+        result = np.zeros(len(x))
+        for i in range(len(x)):
+            h_vector = np.zeros_like(x, dtype=float)
+            h_vector[i] = h
+            result[i] = (f(x + h_vector) - f(x - h_vector)) / (2 * h)
     return result
 
 
-def hess(f: Callable[[float], float], x: [float], h: float = 1e-6) -> np.ndarray:
+def hess(f: Callable, x: np.ndarray, h: float = 1e-6) -> np.ndarray:
     """
     Evaluates the hessian of the function 'f' at `x` numerically using the central difference method.
     Note that the function simply computes the gradients of the gradient, which is not the most efficient way to compute the hessian.
@@ -60,9 +68,9 @@ def hess(f: Callable[[float], float], x: [float], h: float = 1e-6) -> np.ndarray
     result = np.zeros(shape=(len(x), len(x)))
     for i in range(len(x)):
         def calculate_grad_i(y: [float]) -> float:
-            return float(grad(f, y, h)[i])
+            return float(jac(f, y, h)[i])
 
-        result[i] = grad(calculate_grad_i, x, h)
+        result[i] = jac(calculate_grad_i, x, h)
     return result
 
 
